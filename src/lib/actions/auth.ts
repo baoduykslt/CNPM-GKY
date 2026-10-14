@@ -149,7 +149,7 @@ export async function forgotPasswordAction(
   const { error } = await supabase.auth.resetPasswordForEmail(
     parsed.data.email,
     {
-      redirectTo: `${siteUrl}/dat-lai-mat-khau`,
+      redirectTo: `${siteUrl}/auth/callback?next=/dat-lai-mat-khau`,
     }
   )
 
