@@ -8,9 +8,10 @@ import type { Profile } from '@/types/app'
 
 interface UserMenuProps {
   profile: Pick<Profile, 'username' | 'full_name' | 'avatar_url'>
+  avatarUrl: string | null
 }
 
-export function UserMenu({ profile }: UserMenuProps) {
+export function UserMenu({ profile, avatarUrl }: UserMenuProps) {
   const [open, setOpen] = useState(false)
 
   const displayName = profile.full_name ?? profile.username
@@ -25,9 +26,9 @@ export function UserMenu({ profile }: UserMenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        {profile.avatar_url ? (
+        {avatarUrl ? (
           <img
-            src={profile.avatar_url}
+            src={avatarUrl}
             alt={displayName}
             className="h-8 w-8 rounded-full object-cover"
           />
@@ -43,7 +44,6 @@ export function UserMenu({ profile }: UserMenuProps) {
 
       {open && (
         <>
-          {/* Overlay để click ra ngoài thì đóng */}
           <div
             className="fixed inset-0 z-40"
             onClick={() => setOpen(false)}

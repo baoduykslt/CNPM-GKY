@@ -12,16 +12,22 @@ export async function Header() {
   } = await supabase.auth.getUser()
 
   let profile: Pick<Profile, 'username' | 'full_name' | 'avatar_url'> | null = null
+let avatarUrl: string | null = null
 
-  if (user) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('username, full_name, avatar_url')
-      .eq('id', user.id)
-      .single()
-    profile = data
+if (user) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('username, full_name, avatar_url')
+    .eq('id', user.id)
+    .single()
+  profile = data
+
+  if (data?.avatar_url) {
+    avatarUrl = supabase.storage
+      .from('avatars')
+      .getPublicUrl(data.avatar_url).data.publicUrl
   }
-
+}
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
@@ -56,7 +62,7 @@ export async function Header() {
         </Link>
 
         {profile ? (
-          <UserMenu profile={profile} />
+            <UserMenu profile={profile} avatarUrl={avatarUrl} />
         ) : (
           <Link
             href="/dang-nhap"
