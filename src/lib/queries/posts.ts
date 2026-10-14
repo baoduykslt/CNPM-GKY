@@ -47,7 +47,7 @@ export async function getLatestPublishedPosts(limit = 8) {
     .limit(limit)
 
   if (error) return { data: [], error }
-
+console.log('[LATEST OK] count =', data?.length)
   // Resolve thumbnail URL
   const posts = (data ?? []).map((post) => {
     const images = [...(post.post_images ?? [])].sort(
