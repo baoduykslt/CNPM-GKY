@@ -9,9 +9,14 @@ import type { Profile } from '@/types/app'
 interface UserMenuProps {
   profile: Pick<Profile, 'username' | 'full_name' | 'avatar_url'>
   avatarUrl: string | null
+  unreadNotifications: number
 }
 
-export function UserMenu({ profile, avatarUrl }: UserMenuProps) {
+export function UserMenu({
+  profile,
+  avatarUrl,
+  unreadNotifications,
+}: UserMenuProps) {
   const [open, setOpen] = useState(false)
 
   const displayName = profile.full_name ?? profile.username
@@ -37,9 +42,14 @@ export function UserMenu({ profile, avatarUrl }: UserMenuProps) {
             {initial}
           </div>
         )}
-        <span className="hidden sm:inline text-sm font-medium">
+        <span className="hidden text-sm font-medium sm:inline">
           {profile.username}
         </span>
+        {unreadNotifications > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+            {unreadNotifications > 9 ? '9+' : unreadNotifications}
+          </span>
+        )}
       </button>
 
       {open && (
@@ -61,16 +71,33 @@ export function UserMenu({ profile, avatarUrl }: UserMenuProps) {
             </div>
 
             <div className="p-1">
-              <MenuItem href="/ho-so" icon={<User className="h-4 w-4" />} onClick={() => setOpen(false)}>
+              <MenuItem
+                href="/ho-so"
+                icon={<User className="h-4 w-4" />}
+                onClick={() => setOpen(false)}
+              >
                 Hồ sơ cá nhân
               </MenuItem>
-              <MenuItem href="/tin-cua-toi" icon={<FileText className="h-4 w-4" />} onClick={() => setOpen(false)}>
+              <MenuItem
+                href="/tin-cua-toi"
+                icon={<FileText className="h-4 w-4" />}
+                onClick={() => setOpen(false)}
+              >
                 Tin của tôi
               </MenuItem>
-              <MenuItem href="/yeu-thich" icon={<Heart className="h-4 w-4" />} onClick={() => setOpen(false)}>
+              <MenuItem
+                href="/yeu-thich"
+                icon={<Heart className="h-4 w-4" />}
+                onClick={() => setOpen(false)}
+              >
                 Yêu thích
               </MenuItem>
-              <MenuItem href="/thong-bao" icon={<Bell className="h-4 w-4" />} onClick={() => setOpen(false)}>
+              <MenuItem
+                href="/thong-bao"
+                icon={<Bell className="h-4 w-4" />}
+                onClick={() => setOpen(false)}
+                badge={unreadNotifications}
+              >
                 Thông báo
               </MenuItem>
             </div>
@@ -98,11 +125,13 @@ function MenuItem({
   icon,
   children,
   onClick,
+  badge,
 }: {
   href: string
   icon: React.ReactNode
   children: React.ReactNode
   onClick?: () => void
+  badge?: number
 }) {
   return (
     <Link
@@ -112,7 +141,12 @@ function MenuItem({
       role="menuitem"
     >
       {icon}
-      {children}
+      <span className="flex-1">{children}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+          {badge > 9 ? '9+' : badge}
+        </span>
+      )}
     </Link>
   )
 }
