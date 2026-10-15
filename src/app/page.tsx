@@ -11,7 +11,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ==================== HERO ==================== */}
+      {/* HERO */}
       <section className="border-b bg-gradient-to-b from-slate-50 to-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
@@ -24,23 +24,17 @@ export default async function HomePage() {
               liên tục. Tìm kiếm theo khu vực, giá cả, tiện nghi phù hợp với bạn.
             </p>
 
-            {/* CTA */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/phong"
-                className={cn(
-                  buttonVariants({ size: 'lg' }),
-                  'gap-2'
-                )}
+                className={cn(buttonVariants({ size: 'lg' }), 'gap-2')}
               >
                 <Search className="h-5 w-5" />
                 Tìm phòng ngay
               </Link>
               <Link
                 href="/tin-moi"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'lg' })
-                )}
+                className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
               >
                 Đăng tin cho thuê
               </Link>
@@ -49,7 +43,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== FEATURES ==================== */}
+      {/* FEATURES */}
       <section className="border-b bg-white">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:grid-cols-3 sm:px-6">
           <Feature
@@ -70,7 +64,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== LATEST POSTS ==================== */}
+      {/* LATEST POSTS */}
       <section className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="mb-6 flex items-end justify-between">

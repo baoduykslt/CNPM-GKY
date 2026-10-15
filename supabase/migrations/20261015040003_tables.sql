@@ -11,7 +11,7 @@
 -- =====================================================================
 CREATE TABLE public.profiles (
   id            uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username      citext NOT NULL UNIQUE,
+  username      extensions.citext NOT NULL UNIQUE,
   full_name     text,
   phone         text,
   avatar_url    text,
@@ -186,7 +186,7 @@ COMMENT ON TABLE public.post_images IS 'Metadata ảnh của bài. File thật l
 CREATE TABLE public.amenities (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name       text NOT NULL UNIQUE,
-  slug       citext NOT NULL UNIQUE,
+  slug       extensions.citext NOT NULL UNIQUE,
   icon       text,
   category   text,
   is_active  boolean NOT NULL DEFAULT true,
