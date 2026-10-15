@@ -63,3 +63,29 @@ export async function getUnreadNotificationCount(): Promise<number> {
 
   return count ?? 0
 }
+// =====================================================================
+// Lấy N thông báo gần nhất (cho dropdown)
+// =====================================================================
+export async function getRecentNotifications(limit = 5) {
+  unstable_noStore()
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { data: [], unreadCount: 0 }
+
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('id, type, title, message, link, is_read, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return { data: [], unreadCount: 0 }
+
+  const unreadCount = data.filter((n) => !n.is_read).length
+
+  return { data: data as NotificationItem[], unreadCount }
+}

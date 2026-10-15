@@ -2,8 +2,11 @@ import Link from 'next/link'
 import { Home, Search, LogIn, Menu } from 'lucide-react'
 import { SITE_NAME, MAIN_NAV } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/server'
-import { getUnreadNotificationCount } from '@/lib/queries/notifications'
+import { getRecentNotifications } from '@/lib/queries/notifications'
+import { getCurrentUserRoles, getModBadgeCounts } from '@/lib/queries/admin'
 import { UserMenu } from './UserMenu'
+import { NotificationBell } from './NotificationBell'
+import { ModQuickAccess } from './ModQuickAccess'
 import type { Profile } from '@/types/app'
 
 export async function Header() {
@@ -15,7 +18,13 @@ export async function Header() {
   let profile: Pick<Profile, 'username' | 'full_name' | 'avatar_url'> | null =
     null
   let avatarUrl: string | null = null
-  let unreadNotifications = 0
+  let notifications: Awaited<ReturnType<typeof getRecentNotifications>> = {
+    data: [],
+    unreadCount: 0,
+  }
+  let isModerator = false
+  let isAdmin = false
+  let pendingPosts = 0
 
   if (user) {
     const { data } = await supabase
@@ -31,12 +40,26 @@ export async function Header() {
         .getPublicUrl(data.avatar_url).data.publicUrl
     }
 
-    unreadNotifications = await getUnreadNotificationCount()
+    // Lấy notification + roles song song
+    const [notifRes, rolesRes] = await Promise.all([
+      getRecentNotifications(5),
+      getCurrentUserRoles(),
+    ])
+
+    notifications = notifRes
+    isModerator = rolesRes.isModerator
+    isAdmin = rolesRes.isAdmin
+
+    // Đếm pending cho badge (chỉ mod/admin)
+    if (isModerator || isAdmin) {
+      const counts = await getModBadgeCounts()
+      pendingPosts = counts.pendingPosts
+    }
   }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
         <Link
           href="/"
           className="flex items-center gap-2 text-lg font-bold text-primary"
@@ -68,11 +91,28 @@ export async function Header() {
         </Link>
 
         {profile ? (
-          <UserMenu
-            profile={profile}
-            avatarUrl={avatarUrl}
-            unreadNotifications={unreadNotifications}
-          />
+          <>
+            {/* Nút truy cập nhanh cho mod */}
+            <ModQuickAccess
+              isModerator={isModerator}
+              isAdmin={isAdmin}
+              pendingPosts={pendingPosts}
+            />
+
+            {/* Chuông thông báo */}
+            <NotificationBell
+              notifications={notifications.data}
+              unreadCount={notifications.unreadCount}
+            />
+
+            {/* Avatar user */}
+            <UserMenu
+              profile={profile}
+              avatarUrl={avatarUrl}
+              isModerator={isModerator}
+              isAdmin={isAdmin}
+            />
+          </>
         ) : (
           <Link
             href="/dang-nhap"

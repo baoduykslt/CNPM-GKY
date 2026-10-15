@@ -2,20 +2,22 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { User, LogOut, FileText, Heart, Bell } from 'lucide-react'
+import { User, LogOut, FileText, Heart, ShieldCheck, LayoutDashboard } from 'lucide-react'
 import { logoutAction } from '@/lib/actions/auth'
 import type { Profile } from '@/types/app'
 
 interface UserMenuProps {
   profile: Pick<Profile, 'username' | 'full_name' | 'avatar_url'>
   avatarUrl: string | null
-  unreadNotifications: number
+  isModerator: boolean
+  isAdmin: boolean
 }
 
 export function UserMenu({
   profile,
   avatarUrl,
-  unreadNotifications,
+  isModerator,
+  isAdmin,
 }: UserMenuProps) {
   const [open, setOpen] = useState(false)
 
@@ -45,11 +47,6 @@ export function UserMenu({
         <span className="hidden text-sm font-medium sm:inline">
           {profile.username}
         </span>
-        {unreadNotifications > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
-            {unreadNotifications > 9 ? '9+' : unreadNotifications}
-          </span>
-        )}
       </button>
 
       {open && (
@@ -71,36 +68,43 @@ export function UserMenu({
             </div>
 
             <div className="p-1">
-              <MenuItem
-                href="/ho-so"
-                icon={<User className="h-4 w-4" />}
-                onClick={() => setOpen(false)}
-              >
+              <MenuItem href="/ho-so" icon={<User className="h-4 w-4" />} onClick={() => setOpen(false)}>
                 Hồ sơ cá nhân
               </MenuItem>
-              <MenuItem
-                href="/tin-cua-toi"
-                icon={<FileText className="h-4 w-4" />}
-                onClick={() => setOpen(false)}
-              >
+              <MenuItem href="/tin-cua-toi" icon={<FileText className="h-4 w-4" />} onClick={() => setOpen(false)}>
                 Tin của tôi
               </MenuItem>
-              <MenuItem
-                href="/yeu-thich"
-                icon={<Heart className="h-4 w-4" />}
-                onClick={() => setOpen(false)}
-              >
+              <MenuItem href="/yeu-thich" icon={<Heart className="h-4 w-4" />} onClick={() => setOpen(false)}>
                 Yêu thích
               </MenuItem>
-              <MenuItem
-                href="/thong-bao"
-                icon={<Bell className="h-4 w-4" />}
-                onClick={() => setOpen(false)}
-                badge={unreadNotifications}
-              >
-                Thông báo
-              </MenuItem>
             </div>
+
+            {/* Khu vực quản trị */}
+            {(isModerator || isAdmin) && (
+              <div className="border-t p-1">
+                <p className="px-3 py-1 text-[10px] font-semibold uppercase text-slate-400">
+                  Quản trị
+                </p>
+                {isModerator && (
+                  <MenuItem
+                    href="/moderator"
+                    icon={<ShieldCheck className="h-4 w-4" />}
+                    onClick={() => setOpen(false)}
+                  >
+                    Moderator
+                  </MenuItem>
+                )}
+                {isAdmin && (
+                  <MenuItem
+                    href="/admin"
+                    icon={<LayoutDashboard className="h-4 w-4" />}
+                    onClick={() => setOpen(false)}
+                  >
+                    Admin
+                  </MenuItem>
+                )}
+              </div>
+            )}
 
             <div className="border-t p-1">
               <form action={logoutAction}>
@@ -125,13 +129,11 @@ function MenuItem({
   icon,
   children,
   onClick,
-  badge,
 }: {
   href: string
   icon: React.ReactNode
   children: React.ReactNode
   onClick?: () => void
-  badge?: number
 }) {
   return (
     <Link
@@ -141,12 +143,7 @@ function MenuItem({
       role="menuitem"
     >
       {icon}
-      <span className="flex-1">{children}</span>
-      {badge !== undefined && badge > 0 && (
-        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
-          {badge > 9 ? '9+' : badge}
-        </span>
-      )}
+      {children}
     </Link>
   )
 }
